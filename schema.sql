@@ -1,0 +1,7 @@
+-- Reference schema for a NEW development database or approved reporting views.
+-- Do not apply directly to an existing production database.
+CREATE TABLE buildings (id VARCHAR(64) PRIMARY KEY, name VARCHAR(120) NOT NULL);
+CREATE TABLE machines (id VARCHAR(64) PRIMARY KEY, name VARCHAR(120) NOT NULL, line VARCHAR(120) NOT NULL, building_id VARCHAR(64) NOT NULL, collection_mode VARCHAR(24) NOT NULL, ideal_rate DOUBLE NOT NULL, FOREIGN KEY (building_id) REFERENCES buildings(id));
+CREATE TABLE sensor_readings (id INT PRIMARY KEY AUTO_INCREMENT, machine_id VARCHAR(64) NOT NULL, recorded_at DATETIME NOT NULL COMMENT 'UTC', status VARCHAR(24) NOT NULL, temperature_c DOUBLE NULL, vibration_mm_s DOUBLE NULL, motor_rpm DOUBLE NULL, units_per_min DOUBLE NULL, FOREIGN KEY (machine_id) REFERENCES machines(id), INDEX ix_reading_machine_time (machine_id,recorded_at,id));
+CREATE TABLE daily_metrics (machine_id VARCHAR(64) NOT NULL, day DATE NOT NULL, planned_minutes DOUBLE NOT NULL, run_minutes DOUBLE NOT NULL, total_units INT NOT NULL, good_units INT NOT NULL, ideal_rate DOUBLE NOT NULL, PRIMARY KEY(machine_id,day), FOREIGN KEY(machine_id) REFERENCES machines(id));
+CREATE TABLE machine_losses (id INT PRIMARY KEY AUTO_INCREMENT, machine_id VARCHAR(64) NOT NULL, day DATE NOT NULL, reason VARCHAR(120) NOT NULL, minutes DOUBLE NOT NULL, FOREIGN KEY(machine_id) REFERENCES machines(id), INDEX ix_loss_machine_day(machine_id,day));
